@@ -1,24 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useState} from 'react';
 import './App.css';
 
+import {searchPhotos} from './flickrapi'
+
 function App() {
+  const [currentPhotos, setPhotos] = useState([])
+  const [query, setQuery] = useState("")
+
+  const search = query => {
+    searchPhotos(query).then(data => setPhotos(data.photo))
+  }
+  const handleChange = e => setQuery(e.target.value)
+  const handleClick = _ => search(query)
+  const handleEnter = e => e.key === 'Enter' && search(query)
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+
+      <div className="search-overlay">
+        <input 
+          className="search-bar"
+          type="text" 
+          name="search" 
+          placeholder="Photos" 
+          value={query}
+          onChange={handleChange}
+          onKeyDown={handleEnter}         
+        />
+        <button className="search-button" onClick={handleClick}>Search</button>        
+      </div>
+      
+      <ul>{currentPhotos.map(item => (
+          <li key={item.id}>
+            <img 
+              className="image" 
+              src={`https://farm${item.farm}.staticflickr.com/${item.server}/${item.id}_${item.secret}.jpg`} 
+              alt={`${item.title}`}
+            />
+          </li>
+        ))}
+      </ul>
+
     </div>
   );
 }
